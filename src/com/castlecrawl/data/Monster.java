@@ -1,8 +1,13 @@
 package com.castlecrawl.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Monster {
 
 	private int currHP, maxHP, ATK, DEF, Gold;
+	private List<String> curses;
+	
 	public int getCurrHP() {
 		return currHP;
 	}
@@ -69,5 +74,23 @@ public class Monster {
 		this.DEF = DEF;
 		this.Gold = Gold;
 		this.skill = skill;
+		
+		this.curses = new ArrayList<String>();
+	}
+
+	public List<String> getCurses() {
+		return curses;
+	}
+
+	public void setCurses(List<String> curses) {
+		this.curses = curses;
+	}
+	
+	public void addCurse(String curse) {
+		this.getCurses().add(curse);
+	}
+	
+	public void removeCurse(String curse) {
+		this.getCurses().remove(curse);
 	}
 }

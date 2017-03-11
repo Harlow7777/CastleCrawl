@@ -247,11 +247,6 @@ public class InfoPanel extends JPanel{
 						if(g.playerChar.getGold() >= cost) {
 							g.playerChar.getItems().put(item.split(" ")[0], amount);
 							g.playerChar.setGold(g.playerChar.getGold()-cost);
-							if(itemName.equals("Longsword")) {
-								g.playerChar.setATK(g.playerChar.getATK()+1);
-							} else if(itemName.equals("Shield")) {
-								g.playerChar.setDEF(g.playerChar.getDEF()+1);
-							}
 						} else {
 							notifications.setText("Can't afford");
 						}

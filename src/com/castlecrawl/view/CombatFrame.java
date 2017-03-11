@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.Map.Entry;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -19,13 +20,14 @@ import com.castlecrawl.data.Monster;
 import com.castlecrawl.data.Player;
 
 @SuppressWarnings("serial")
-public class CombatFrame extends JFrame{
+public class CombatFrame extends JDialog{
 	
 	private Monster monster;
-	public 	JTextArea player = new JTextArea();
+	public JTextArea player = new JTextArea();
+	public JButton inventory = new JButton("Inventory");
 
-	public CombatFrame(Monster monster) {
-		super("Battle");		
+	public CombatFrame(Monster monster, CustomFrame c) {
+		super(c, "Battle");		
 		this.setUndecorated(true);
 		this.setVisible(true);
 		this.monster = monster;
@@ -33,8 +35,7 @@ public class CombatFrame extends JFrame{
 		this.setResizable(false);
 	}
 	
-	public void init(Player playerChar) {		
-		JButton inventory = new JButton("Inventory");
+	public void init(Player playerChar, CustomFrame c) {		
 		boolean value = false;
 		for(Integer i : playerChar.getItems().values()) {
 			if(i > 0) {
@@ -47,43 +48,6 @@ public class CombatFrame extends JFrame{
 			inventory.setVisible(false);
 		}
 		inventory.addActionListener( CustomFrame.inventoryView );
-//				new ActionListener() {
-//			@Override
-//			public void actionPerformed(ActionEvent arg0) {
-//					JFrame inv = new JFrame();
-//					inv.setVisible(true);
-//					inv.setLayout(new GridLayout(playerChar.getItems().entrySet().size(), 1));
-//					
-//					for(Entry e: playerChar.getItems().entrySet()) {
-//						if(Integer.valueOf(e.getValue().toString()) > 0) {
-//							JButton button = new JButton();
-//							button.setText(e.getKey().toString() + " " + e.getValue().toString());
-//							inv.add(button);
-//							button.addActionListener( new ActionListener() {
-//		
-//								@Override
-//								public void actionPerformed(ActionEvent arg0) {
-//									switch(e.getKey().toString()) {
-//									case "Potion":
-//										if(playerChar.getCurrHP() == playerChar.getMaxHP()) {
-//											System.out.println("HP already Max");
-//										} else {
-//											playerChar.setCurrHP(playerChar.getCurrHP()+1);
-//											playerChar.getItems().put("Potion", Integer.valueOf(e.getValue().toString())-1);
-//											player.setText(updatePlayerStats("Healed for 1 HP", playerChar));
-//											inv.dispose();
-//										}
-//									}
-//								}
-//								
-//							});
-//						}
-//					}
-//					inv.pack();
-//				
-//			}
-//			
-//		});
 		
 		JPanel combatPanel = new JPanel();
 		combatPanel.setLayout(new GridLayout(2, 3));
@@ -119,12 +83,21 @@ public class CombatFrame extends JFrame{
 						dispose();
 						playerChar.setGold(playerChar.getGold() + monster.getGold());
 					}
+					
+					if(playerChar.getSkills().contains("Poison")) {
+						playerChar.removeSkill("Poison");
+						monster.addCurse("Poison");
+					}
 				} else {
 					player.setText(updatePlayerStats("Failed @ " + atk, playerChar));
 					monsterPanel.setText(updateMonsterStats("Blocked @ " + def, monster));
 				}
 				defend.setEnabled(true);
 				attack.setEnabled(false);
+				if(playerChar.getCurses().contains("Poison")) {
+					playerChar.removeCurse("Poison");
+					playerChar.setCurrHP(playerChar.getCurrHP()-1, c);
+				}
 			}
 			
 		});
@@ -133,25 +106,29 @@ public class CombatFrame extends JFrame{
 		defend.addActionListener( new ActionListener() {
 
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent e) {
 				//TODO: potentially make DEF static, only attack rolls adds atk mod then checks against enemy's DEF
 				// Roll 1D6 and add DEF mod, check against monsters attack
 				Random r = new Random();
 				int def = r.nextInt(6) + playerChar.getDEF() + 1;
 				int atk = r.nextInt(6) + monster.getATK() + 1;
 				if(atk > def) {
-					playerChar.setCurrHP(playerChar.getCurrHP()-1);
+					playerChar.setCurrHP(playerChar.getCurrHP()-1, c);
 					player.setText(updatePlayerStats("Takes 1 HIT @ " + def, playerChar));
 					monsterPanel.setText(updateMonsterStats("Deals 1 HIT @ " + atk, monster));
-					if(playerChar.getCurrHP() == 0) {
-						JButton sourceButton = (JButton) arg0.getSource();
-						int response = JOptionPane.showConfirmDialog(sourceButton.getParent(), "Restart?", "Game Over", JOptionPane.YES_NO_OPTION);
-						if(response == JOptionPane.NO_OPTION) {
-							System.exit(ABORT);
-						} else {
-							//TODO: store score(player stats, current floor)
-							dispose();
-						}
+
+					if(monster.getSkill().contains("Poison")) {
+						playerChar.addCurse("Poison");
+						monster.setSkill("");
+					}
+				} else if(playerChar.getSkills().contains("Payback") && def > atk) {
+					System.out.println("Monster takes 1 HIT");
+					monster.setCurrHP(monster.getCurrHP()-1);
+					monsterPanel.setText(updateMonsterStats("Takes 1 Hit @ " + atk, monster));
+					player.setText(updatePlayerStats("Payback @ " + def, playerChar));
+					if(monster.getCurrHP() == 0) {
+						dispose();
+						playerChar.setGold(playerChar.getGold() + monster.getGold());
 					}
 				} else {
 					player.setText(updatePlayerStats("Blocked @ " + def, playerChar));
@@ -159,6 +136,15 @@ public class CombatFrame extends JFrame{
 				}
 				defend.setEnabled(false);
 				attack.setEnabled(true);
+				if(monster.getCurses().contains("Poison")) {
+					monster.setCurrHP(monster.getCurrHP()-1);
+					monsterPanel.setText(updateMonsterStats("Poisoned", monster));
+					player.setText(updatePlayerStats("Enemy Poisoned" + def, playerChar));
+					if(monster.getCurrHP() == 0) {
+						dispose();
+						playerChar.setGold(playerChar.getGold() + monster.getGold());
+					}
+				}
 			}
 			
 		});

@@ -201,28 +201,17 @@ public class GameBoard extends CustomFrame{
 				} else {
 					infoPanel.notifications.setText("Trapped!");
 					infoPanel.notifications.setBackground(Color.RED);
-					playerChar.setCurrHP(playerChar.getCurrHP()-1);
+					playerChar.setCurrHP(playerChar.getCurrHP()-1, this);
 					infoPanel.updatePlayerStats();
 				}
 			} else {
 				infoPanel.notifications.setText("Trapped!");
 				infoPanel.notifications.setBackground(Color.RED);
-				playerChar.setCurrHP(playerChar.getCurrHP()-1);
+				playerChar.setCurrHP(playerChar.getCurrHP()-1, this);
 				infoPanel.updatePlayerStats();
 			}
 			if(playerChar.getCurrHP() == 0) {
-				infoPanel.notifications.setText(playerChar.getCharacterName() + " died");
 				toggleNavigation(false);
-				int response = JOptionPane.showConfirmDialog(this, "Restart?", "Game Over", JOptionPane.YES_NO_OPTION);
-				if(response == JOptionPane.NO_OPTION) {
-					System.exit(ABORT);
-				} else {
-					//TODO: store score(player stats, current floor)
-					System.out.println("Restarting");
-					//TODO: fix bug where combatPanel appears after starting new instance
-					dispose();
-		        	new GameBoard();
-				}
 			} else {
 				return "D";
 			}
@@ -256,15 +245,15 @@ public class GameBoard extends CustomFrame{
 		Monster monster = null;
 		System.out.println("Monster ID: " + monsterID);
 		if(monsterID >= 0 && monsterID <= 20) {
-			monster = new Monster("Giant Rat", 1, 0, 0, 20, null);
+			monster = new Monster("Giant Rat", 1, 0, 0, 20, "");
 		} else if(monsterID > 20 && monsterID <= 40) {
-			monster = new Monster("Wolf", 2, 0, 1, 30, null);
+			monster = new Monster("Wolf", 2, 0, 1, 30, "");
 		} else if(monsterID > 40 && monsterID <= 50) {
 			monster = new Monster("Goblin", 2, 0, 0, 30, "Self Destruct");
 		} else if(monsterID > 50 && monsterID <= 60) {
 			monster = new Monster("Arachnis", 2, 0, 0, 50, "Poison");
 		} else if(monsterID > 60 && monsterID <= 70) {
-			monster = new Monster("Minor Slime", 1, 0, 0, 10, null);
+			monster = new Monster("Minor Slime", 1, 0, 0, 10, "");
 		} else if(monsterID > 70 && monsterID <= 80) {
 			monster = new Monster("Knight", 2, 0, 1, 50, "Joust");
 		} else if(monsterID > 80 && monsterID <= 85) {
@@ -289,8 +278,8 @@ public class GameBoard extends CustomFrame{
 	
 	private void combat(Monster monster) {
 		toggleNavigation(false);
-		CombatFrame combatFrame = new CombatFrame(monster);
-		combatFrame.init(playerChar);
+		CombatFrame combatFrame = new CombatFrame(monster, this);
+		combatFrame.init(playerChar, this);
 		combatFrame.addWindowListener(new WindowListener() {
 
 			@Override

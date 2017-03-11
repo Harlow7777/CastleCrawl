@@ -9,12 +9,14 @@ import java.util.Map.Entry;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import com.castlecrawl.data.GameBoardData;
 import com.castlecrawl.data.Player;
 import com.castlecrawl.view.CombatFrame;
+import com.castlecrawl.view.GameBoard;
 import com.castlecrawl.view.InfoPanel;
 
 @SuppressWarnings("serial")
@@ -71,7 +73,7 @@ public class CustomFrame extends JFrame{
 												System.out.println("HP already Max");
 											}
 										} else {
-											playerChar.setCurrHP(playerChar.getCurrHP()+1);
+											playerChar.setCurrHP(playerChar.getCurrHP()+1, (CustomFrame) SwingUtilities.getRoot(i));
 											playerChar.getItems().put("Potion", Integer.valueOf(e.getValue().toString())-1);
 											if(parentPanel.equals("InfoPanel")) {
 												i.updatePlayerStats();
@@ -80,9 +82,40 @@ public class CustomFrame extends JFrame{
 											}
 											inv.dispose();
 										}
+										break;
+									case "Longsword":
+										playerChar.setWeaponSlot("Longsword");
+										break;
+									case "Shield":
+										playerChar.setShieldSlot("Shield");
+										break;
+									case "DarkKnightHelm":
+										playerChar.setArmor1("DarkKnightHelm");
+										if(playerChar.getCOR() == 6) {
+											gameOver(playerChar, (GameBoard) i.getParent());
+										}
+										break;
+									case "Poison":
+										playerChar.addSkill("Poison");
+										break;
+									case "Antidote":
+										//TODO: add selection of curse to remove
+										playerChar.removeCurse("Poison");
+										break;
+									}
+									
+									boolean value = false;
+									for(Integer v : playerChar.getItems().values()) {
+										if(v > 0) {
+											value = true;
+										}
+									}
+									if(playerChar.getItems().size() > 0 && value) {
+										c.inventory.setVisible(true);
+									} else {
+										c.inventory.setVisible(false);
 									}
 								}
-								
 							});
 						}
 					}
@@ -97,5 +130,22 @@ public class CustomFrame extends JFrame{
 			}
 			
 		};	
+	}
+	
+	//TODO: make this static, fix this references
+	public static void gameOver(Player playerChar, CustomFrame g) {
+		int response = JOptionPane.showConfirmDialog(g, "Restart?", "Game Over", JOptionPane.YES_NO_OPTION);
+		if(response == JOptionPane.NO_OPTION) {
+			System.exit(ABORT);
+		} else {
+			//TODO: store score(player stats, current floor)
+			System.out.println("Restarting");
+			if(playerChar.getCOR() == 6) {
+				//TODO: store player in current space on current floor
+			}
+			//TODO: fix bug where combatPanel appears after starting new instance
+			g.dispose();
+        	new GameBoard();
+		}
 	}
 }
