@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import com.castlecrawl.data.GameBoardData;
 import com.castlecrawl.data.Player;
@@ -39,7 +40,6 @@ public class CustomFrame extends JFrame{
 				
 				JButton b = (JButton) arg0.getSource();
 				String parentPanel = b.getParent().getClass().getSimpleName();
-				System.out.println(parentPanel);
 				
 				if(playerChar.getItems().entrySet().size() > 0 && value) {
 					JFrame inv = new JFrame();
@@ -60,8 +60,7 @@ public class CustomFrame extends JFrame{
 									if(parentPanel.equals("InfoPanel")) {
 										i = (InfoPanel) b.getParent();
 									} else {
-										//TODO: fix getParent returning JPanel, should be returning combatframe
-										c = (CombatFrame) b.getParent().getParent().getParent().getParent();
+										c = (CombatFrame) SwingUtilities.getRoot(b);
 									}
 									switch(e.getKey().toString()) {
 									case "Potion":
