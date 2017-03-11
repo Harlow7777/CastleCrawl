@@ -12,6 +12,8 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+
+import com.castlecrawl.CustomFrame;
 import com.castlecrawl.Main;
 import com.castlecrawl.data.Monster;
 import com.castlecrawl.data.Player;
@@ -44,43 +46,44 @@ public class CombatFrame extends JFrame{
 		} else {
 			inventory.setVisible(false);
 		}
-		inventory.addActionListener( new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-					JFrame inv = new JFrame();
-					inv.setVisible(true);
-					inv.setLayout(new GridLayout(playerChar.getItems().entrySet().size(), 1));
-					
-					for(Entry e: playerChar.getItems().entrySet()) {
-						if(Integer.valueOf(e.getValue().toString()) > 0) {
-							JButton button = new JButton();
-							button.setText(e.getKey().toString() + " " + e.getValue().toString());
-							inv.add(button);
-							button.addActionListener( new ActionListener() {
-		
-								@Override
-								public void actionPerformed(ActionEvent arg0) {
-									switch(e.getKey().toString()) {
-									case "Potion":
-										if(playerChar.getCurrHP() == playerChar.getMaxHP()) {
-											System.out.println("HP already Max");
-										} else {
-											playerChar.setCurrHP(playerChar.getCurrHP()+1);
-											playerChar.getItems().put("Potion", Integer.valueOf(e.getValue().toString())-1);
-											player.setText(updatePlayerStats("Healed for 1 HP", playerChar));
-											inv.dispose();
-										}
-									}
-								}
-								
-							});
-						}
-					}
-					inv.pack();
-				
-			}
-			
-		});
+		inventory.addActionListener( CustomFrame.inventoryView );
+//				new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent arg0) {
+//					JFrame inv = new JFrame();
+//					inv.setVisible(true);
+//					inv.setLayout(new GridLayout(playerChar.getItems().entrySet().size(), 1));
+//					
+//					for(Entry e: playerChar.getItems().entrySet()) {
+//						if(Integer.valueOf(e.getValue().toString()) > 0) {
+//							JButton button = new JButton();
+//							button.setText(e.getKey().toString() + " " + e.getValue().toString());
+//							inv.add(button);
+//							button.addActionListener( new ActionListener() {
+//		
+//								@Override
+//								public void actionPerformed(ActionEvent arg0) {
+//									switch(e.getKey().toString()) {
+//									case "Potion":
+//										if(playerChar.getCurrHP() == playerChar.getMaxHP()) {
+//											System.out.println("HP already Max");
+//										} else {
+//											playerChar.setCurrHP(playerChar.getCurrHP()+1);
+//											playerChar.getItems().put("Potion", Integer.valueOf(e.getValue().toString())-1);
+//											player.setText(updatePlayerStats("Healed for 1 HP", playerChar));
+//											inv.dispose();
+//										}
+//									}
+//								}
+//								
+//							});
+//						}
+//					}
+//					inv.pack();
+//				
+//			}
+//			
+//		});
 		
 		JPanel combatPanel = new JPanel();
 		combatPanel.setLayout(new GridLayout(2, 3));

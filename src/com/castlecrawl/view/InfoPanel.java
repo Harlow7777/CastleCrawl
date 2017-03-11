@@ -31,7 +31,6 @@ public class InfoPanel extends JPanel{
 	public JTextArea notifications = new JTextArea();
 	private JTextArea stats = new JTextArea();
 	private JTextArea items = new JTextArea();
-	public static ActionListener inventoryView;
 
 	public InfoPanel(GameBoardData boardData) {
 		super();
@@ -55,58 +54,9 @@ public class InfoPanel extends JPanel{
 			
 		});
 		
-		inventoryView = new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				boolean value = false;
-				for(Integer i : g.playerChar.getItems().values()) {
-					if(i > 0) {
-						value = true;
-					}
-				}
-				if(g.playerChar.getItems().entrySet().size() > 0 && value) {
-					JFrame inv = new JFrame();
-					inv.setVisible(true);
-					inv.setLayout(new GridLayout(g.playerChar.getItems().entrySet().size(), 1));
-					
-					for(Entry e: g.playerChar.getItems().entrySet()) {
-						if(Integer.valueOf(e.getValue().toString()) > 0) {
-							JButton button = new JButton();
-							button.setText(e.getKey().toString() + " " + e.getValue().toString());
-							inv.add(button);
-							button.addActionListener( new ActionListener() {
-		
-								@Override
-								public void actionPerformed(ActionEvent arg0) {
-									switch(e.getKey().toString()) {
-									case "Potion":
-										if(g.playerChar.getCurrHP() == g.playerChar.getMaxHP()) {
-											notifications.setText("Already Max");
-										} else {
-											g.playerChar.setCurrHP(g.playerChar.getCurrHP()+1);
-											g.playerChar.getItems().put("Potion", Integer.valueOf(e.getValue().toString())-1);
-											updatePlayerStats();
-											inv.dispose();
-										}
-									}
-								}
-								
-							});
-						}
-					}
-					inv.pack();
-				} else {
-					notifications.setBackground(Color.RED);
-					notifications.setText("No Items");
-				}
-			}
-			
-		};
-		
 		JButton inventory = new JButton("Inventory");
 		inventory.setBackground(Color.WHITE);
-		inventory.addActionListener( inventoryView );
+		inventory.addActionListener( g.inventoryView );
 		
 		JPanel navigation = new JPanel();
 		navigation.setBackground(Color.WHITE);
@@ -305,6 +255,8 @@ public class InfoPanel extends JPanel{
 						} else {
 							notifications.setText("Can't afford");
 						}
+						shopFrame.dispose();
+						generateShopList();
 					}
 					updatePlayerStats();
 				}
